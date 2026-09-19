@@ -22,7 +22,7 @@ The choice of per-file hooks over a bundler pass is in [[research/augmentation-l
 
 On macOS, Nub's HTTP clients use the system resolver so VPN interface scopes and split-DNS routing are preserved. Other platforms retain their existing resolver selection.
 
-The CLI enables the vendored registry's `hickory-dns` Cargo feature only outside macOS. Because reqwest features unify across clients, excluding it at the dependency boundary also covers auxiliary requests and Node downloads. `scripts/check-dns-features.sh` checks both macOS architectures, Linux and Windows with default and all CLI features; CI runs it in the Check job.
+The CLI enables the vendored registry's `hickory-dns` Cargo feature only outside macOS. Because reqwest features unify across clients, excluding it at the dependency boundary also covers auxiliary requests and Node downloads. Android retains the feature, but the engine's HTTP builders disable Hickory to avoid requiring a JVM through JNI in Termux. `scripts/check-dns-features.sh` checks both macOS architectures, Linux, Windows and Android with default and all CLI features; CI runs it in the Check job.
 
 ## Feature support across Node versions
 

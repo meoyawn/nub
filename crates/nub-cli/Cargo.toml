@@ -271,11 +271,11 @@ url = "2.5"
 # under the same headroom budget; unconstrained boxes keep rayon's default.
 rayon = "1"
 
-# macOS must use the system resolver to honor VPN interface-scoped DNS (#942).
-# Keep Hickory out of the whole macOS feature graph: disabling it only on the
-# registry builder leaves auxiliary reqwest clients using it through feature
-# unification. Other targets retain their existing DNS behavior, including the
-# engine's Android/JNI opt-out.
+# Preserve Hickory's in-process DNS caching outside macOS. macOS needs the
+# system resolver for VPN interface-scoped DNS (#942); excluding the feature
+# also covers auxiliary reqwest clients through Cargo feature unification.
+# Android keeps the feature but the engine's HTTP builders disable Hickory:
+# reading Android DNS config requires a JVM via JNI, absent in Termux/CLI use.
 [target.'cfg(not(target_os = "macos"))'.dependencies]
 aube-registry = { path = "../../vendor/aube/crates/aube-registry", features = ["hickory-dns"] }
 
