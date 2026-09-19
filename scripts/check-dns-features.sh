@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Guard the resolved dependency graph, including feature unification from
+# Guard the resolved reqwest features, including feature unification from
 # auxiliary HTTP clients. No cross-compilation or live VPN is needed.
 # @lat: [[design/architecture#Architecture#HTTP DNS resolution]]
 set -euo pipefail
@@ -17,14 +17,14 @@ targets=(
 for target in "${targets[@]}"; do
   for features in default all; do
     args=(tree --locked -p nub-cli --target "$target"
-      --edges normal --prefix none --format '{p} {f}')
+      --edges normal --invert reqwest --depth 0 --format '{f}')
     if [[ "$features" == all ]]; then args+=(--all-features); fi
-    graph=$(cargo "${args[@]}")
-    if ! grep -q '^reqwest ' <<< "$graph"; then
-      echo "FAIL: no reqwest clients found for $target ($features)" >&2
+    reqwest_features=$(cargo "${args[@]}")
+    if [[ -z "$reqwest_features" ]]; then
+      echo "FAIL: no reqwest features found for $target ($features)" >&2
       exit 1
     fi
-    if grep -q '^hickory-resolver ' <<< "$graph"; then
+    if grep -Eq '(^|,)hickory-dns(,|$)' <<< "$reqwest_features"; then
       hickory=true
     else
       hickory=false
@@ -32,9 +32,9 @@ for target in "${targets[@]}"; do
     expected=true
     if [[ "$target" == *-apple-darwin ]]; then expected=false; fi
     if [[ "$hickory" != "$expected" ]]; then
-      echo "FAIL: $target ($features): Hickory=$hickory, expected $expected" >&2
+      echo "FAIL: $target ($features): reqwest/hickory-dns=$hickory, expected $expected" >&2
       exit 1
     fi
-    echo "PASS: $target ($features): Hickory=$hickory"
+    echo "PASS: $target ($features): reqwest/hickory-dns=$hickory"
   done
 done
