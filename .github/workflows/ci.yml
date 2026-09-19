@@ -243,6 +243,8 @@ jobs:
       # (line-tables-only), which no lint reads. The test jobs deliberately stay
       # on `dev`: they reuse the debug addon/binary artifacts by path.
       # nub-phantom (above) stays too — its workspace defines no `fast` profile.
+      - name: Check platform DNS feature selection
+        run: bash scripts/check-dns-features.sh
       - run: cargo check --all-targets --profile fast
       - run: cd crates/nub-native && cargo check --locked --all-targets --all-features --profile fast
       # Real Windows compile + test coverage is the windows-latest leg of the
